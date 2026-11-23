@@ -131,7 +131,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <script>
 /* Cloudflare Worker manzilini shu yerga yozing */
 const API = "https://e-mto.otdelkadrov-1khm.workers.dev";
-const TARGET = {lat: 40.283016, lon: 69.033260}, RADIUS = 200;
+const TARGET = {lat: 40.283016, lon: 69.033260}, RADIUS = 200, ACC_MAX = 60; // metr
 
 let deferredPrompt, faceOk = false, geoOk = false, coords = "", photoBlob = null, nextAct = null, stream = null, mirrored = false;
 const $ = id => document.getElementById(id);
@@ -214,25 +214,35 @@ function drawToBlob(src, w, h, flip) {
   }, 'image/jpeg', .6);
 }
 
-/* ---- GPS ---- */
+/* ---- GPS (aniq joy tekshiruvi) ---- */
 function dist(a, b, c, d) {
   const R = 6371e3, r = Math.PI / 180, p1 = a * r, p2 = c * r, dp = (c - a) * r, dl = (d - b) * r;
   const h = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
   return 2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
-function verifyGPS() {
-  const s = $('geo-status'); s.className = 'badge'; s.textContent = 'GPS tekshirilmoqda...';
-  if (!navigator.geolocation) return alert("Qurilma GPS'ni qo'llab-quvvatlamaydi.");
-  navigator.geolocation.getCurrentPosition(p => {
-    coords = `${p.coords.latitude},${p.coords.longitude}`;
-    const d = dist(p.coords.latitude, p.coords.longitude, TARGET.lat, TARGET.lon);
-    geoOk = d <= RADIUS;
-    s.textContent = geoOk ? `Texnikum hududidasiz (${Math.round(d)} m)` : `Hududdan tashqaridasiz (${Math.round(d)} m)`;
-    s.className = 'badge ' + (geoOk ? 'ok' : 'bad');
-    refresh();
-  }, () => { geoOk = false; s.textContent = "GPS xatosi yoki ruxsat yo'q"; s.className = 'badge bad'; refresh(); },
-  {enableHighAccuracy: true, timeout: 15000, maximumAge: 0});
+let lastPos = null;
+function getPos() {
+  return new Promise((ok, no) => {
+    if (!navigator.geolocation) return no(new Error('GPS yoq'));
+    navigator.geolocation.getCurrentPosition(ok, no, {enableHighAccuracy: true, timeout: 20000, maximumAge: 0});
+  });
 }
+async function verifyGPS() {
+  const s = $('geo-status'); s.className = 'badge'; s.textContent = 'GPS tekshirilmoqda...';
+  try {
+    const p = await getPos();
+    const d = dist(p.coords.latitude, p.coords.longitude, TARGET.lat, TARGET.lon), acc = p.coords.accuracy;
+    lastPos = p; coords = `${p.coords.latitude},${p.coords.longitude}`;
+    geoOk = d <= RADIUS && acc <= ACC_MAX;
+    s.textContent = acc > ACC_MAX ? `GPS aniqligi past (±${Math.round(acc)} m). Ochiq joyga chiqib, qayta tekshiring`
+      : geoOk ? `Belgilangan joydasiz (${Math.round(d)} m, ±${Math.round(acc)} m)` : `Belgilangan joydan tashqaridasiz (${Math.round(d)} m)`;
+    s.className = 'badge ' + (geoOk ? 'ok' : 'bad');
+  } catch (e) {
+    geoOk = false; s.textContent = "GPS xatosi yoki ruxsat yo'q"; s.className = 'badge bad';
+  }
+  refresh();
+}
+addEventListener('load', verifyGPS); // sahifa ochilganda o'zi tekshiradi
 
 /* ---- Yuborish ---- */
 function refresh() {
@@ -241,10 +251,16 @@ function refresh() {
   b.textContent = nextAct === 'keldi' ? 'Keldi: tasdiqlash va yuborish' : nextAct === 'ketdi' ? 'Ketdi: tasdiqlash va yuborish' : 'Tasdiqlash va yuborish';
 }
 async function submitData() {
-  const b = $('btn-submit'); b.disabled = true; b.textContent = 'Yuborilmoqda...';
+  const b = $('btn-submit'); b.disabled = true; b.textContent = 'Joylashuv tekshirilmoqda...';
+  await verifyGPS(); // yuborish oldidan yangi GPS
+  b.disabled = true;
+  if (!geoOk) { alert('Siz belgilangan joyda emassiz. Yuborilmadi.'); refresh(); return; }
+  b.textContent = 'Yuborilmoqda...';
   const fd = new FormData();
   fd.append('name', $('student-name').value);
   fd.append('coords', coords);
+  fd.append('acc', lastPos.coords.accuracy);
+  fd.append('ts', lastPos.timestamp);
   fd.append('photo', photoBlob, 'face.jpg');
   try {
     const r = await fetch(`${API}/attendance`, {method: 'POST', body: fd});
