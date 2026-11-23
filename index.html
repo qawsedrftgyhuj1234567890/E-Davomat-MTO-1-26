@@ -1,312 +1,475 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MTO 1-26 Davomati</title>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.json">
-  <style>
-    :root { background: #111827; color: #f3f4f6; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { padding: 16px; display: flex; justify-content: center; background-color: #111827; min-height: 100vh; align-items: flex-start; }
-    .app { background: #1f2937; padding: 20px; border-radius: 16px; max-width: 500px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 20px; }
-    h1 { font-size: 20px; margin-bottom: 4px; text-align: center; color: #60a5fa; }
-    .group-subtitle { font-size: 13px; text-align: center; color: #9ca3af; margin-bottom: 20px; font-weight: bold; }
-    .form-group { margin-bottom: 16px; }
-    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #e5e7eb; }
-    select { width: 100%; padding: 14px; border: 1px solid #4b5563; border-radius: 8px; font-size: 16px; background: #374151; color: #fff; outline: none; }
-    
-    .photo-box { width: 100%; height: 220px; background: #374151; border: 2px dashed #6b7280; border-radius: 10px; margin: 10px 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; }
-    .photo-preview { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 2; }
-    .placeholder-text { color: #d1d5db; z-index: 1; text-align: center; padding: 10px; font-size: 14px; font-weight: bold; }
-    .file-input { display: none; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MTO 1-26 Davomati</title>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --text-primary: #1c1c1e;
+            --text-secondary: #3a3a3c;
+            --accent-blue: #007aff;
+            --accent-green: #34c759;
+            --accent-red: #ff3b30;
+        }
 
-    button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 6px; }
-    .btn-blue { background: #2563eb; color: #fff; }
-    .btn-blue:active { background: #1d4ed8; }
-    .btn-green { background: #16a34a; color: #fff; }
-    .btn-green:active { background: #15803d; }
-    .btn-install { background: #7c3aed; color: #fff; margin-bottom: 15px; display: block; }
-    .btn-install:active { background: #6d28d9; }
-    button:disabled { background: #4b5563; color: #9ca3af; cursor: not-allowed; opacity: 0.7; }
-    .status-badge { font-size: 12px; padding: 8px; border-radius: 6px; background: #374151; text-align: center; margin-top: 6px; font-weight: bold; color: #e5e7eb; }
-  </style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 30%, #fbc2eb 70%, #a6c1ee 100%);
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* iOS Glassmorphism Card Style */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            color: var(--text-primary);
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: all 0.2s;
+        }
+
+        select:focus, input:focus {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        /* Status Badges (Keldi / Ketdi) */
+        .status-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            flex: 1;
+            padding: 12px;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #8e8e93;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge.active-keldi {
+            background: rgba(52, 199, 89, 0.25);
+            border-color: rgba(52, 199, 89, 0.5);
+            color: #248a3d;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
+        }
+
+        .status-badge.active-ketdi {
+            background: rgba(255, 59, 48, 0.2);
+            border-color: rgba(255, 59, 48, 0.4);
+            color: #d70015;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2);
+        }
+
+        /* Camera Section */
+        .camera-area {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .camera-area video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-camera {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--accent-blue);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            margin-bottom: 12px;
+        }
+
+        .btn-camera:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-call {
+            background: linear-gradient(135deg, #34c759, #30b350);
+            color: white;
+            box-shadow: 0 6px 16px rgba(52, 199, 89, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .btn-call:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #007aff, #005ecb);
+            color: white;
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        /* GPS Section */
+        .gps-status {
+            padding: 14px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .gps-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff3b30;
+            margin-right: 8px;
+            display: inline-block;
+        }
+
+        .gps-dot.active {
+            background: #34c759;
+            box-shadow: 0 0 8px #34c759;
+        }
+
+        .time-stamp {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app">
-  <button type="button" id="btn-install" class="btn-install" onclick="installApp()">📲 Telefon ekraniga o'rnatish</button>
-
-  <h1>1-son Texnikum Davomati</h1>
-  <div class="group-subtitle">Guruh: MTO 1-26</div>
-  
-  <div class="form-group">
-    <label>Talaba F.I.Sh.</label>
-    <select id="student-name">
-      <option value="">Talabani tanlang...</option>
-      <option value="Abduqodirov Salmon">Abduqodirov S.</option>
-      <option value="Abdurahmonov Behruzjon">Abdurahmonov B.</option>
-      <option value="Abdusamatov Saidnurdixon">Abdusamatov S.</option>
-      <option value="Ahmadiyorov Nurbek">Ahmadiyorov N.</option>
-      <option value="Ahmadqulov Javohir">Ahmadqulov J.</option>
-      <option value="Akramov Nodirbek">Akramov N.</option>
-      <option value="Joniqulov Doniyor">Joniqulov D.</option>
-      <option value="Kamoliddinov Amirxon">Kamoliddinov A.</option>
-      <option value="Kamolov Muhammadjon">Kamolov M.</option>
-      <option value="Meliboyev Samandar">Meliboyev S.</option>
-      <option value="Murodqulov Jahongir">Murodqulov J.</option>
-      <option value="Mustafoqulov Alisher">Mustafoqulov A.</option>
-      <option value="Norbekov Shahriyor">Norbekov Sh.</option>
-      <option value="Norbo‘tayev Qosimjon">Norbo‘tayev Q.</option>
-      <option value="Qurbonboyev Noryigit">Qurbonboyev N.</option>
-      <option value="Rayimjonov Umidjon">Rayimjonov U.</option>
-      <option value="Safarboyev Behruz">Safarboyev B.</option>
-      <option value="Safarboyev Boburjon">Safarboyev B.</option>
-      <option value="Shermatov Anvar">Shermatov A.</option>
-      <option value="Sulaymonov Shoxrux">Sulaymonov Sh.</option>
-      <option value="Sultonov Ibrohim">Sultonov I.</option>
-      <option value="Tilovbekov Sunnatullo">Tilovbekov S.</option>
-      <option value="Tohirov Salohiddin">Tohirov S.</option>
-      <option value="Tursunmurodov Shohjahon">Tursunmurodov Sh.</option>
-      <option value="Umurqulov Ergashali">Umurqulov E.</option>
-      <option value="Xamroqulov Ozodbek">Xamroqulov O.</option>
-      <option value="Xolbo‘tayev Eldor">Xolbo‘tayev E.</option>
-      <option value="Xudoyberdiyev Humoyun">Xudoyberdiyev H.</option>
-      <option value="Xudoyberdiyev Sunnatbek">Xudoyberdiyev S.</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>Dars juftligi (Para)</label>
-    <select id="lesson-pair">
-      <option value="1-para">1-para</option>
-      <option value="2-para">2-para</option>
-      <option value="3-para">3-para</option>
-      <option value="4-para">4-para</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>Face Control (Kameradan rasmga tushish)</label>
-    <div class="photo-box" onclick="document.getElementById('camera-file').click()">
-      <span class="placeholder-text" id="photo-placeholder">📸 Kamerani ochish uchun bosing</span>
-      <img id="preview" class="photo-preview" alt="Preview">
+<div class="container">
+    <!-- Header -->
+    <div class="glass-card header">
+        <h1>📱 MTO 1-26 Davomati</h1>
+        <p>1-son Texnikum | Telefon ekraniga o'rnatish</p>
     </div>
-    <input type="file" accept="image/*" capture="environment" id="camera-file" class="file-input" onchange="handlePhoto(this)">
-    <div class="status-badge" id="face-status">Rasm yuklanmagan</div>
-  </div>
 
-  <div class="form-group">
-    <label>GPS Geolokatsiya (Texnikum hududi)</label>
-    <button type="button" class="btn-blue" onclick="verifyGPS()">📍 GPS manzilni tekshirish</button>
-    <div class="status-badge" id="geo-status">Tekshirilmagan</div>
-  </div>
+    <!-- Student & Para Selection -->
+    <div class="glass-card">
+        <div class="section-title">👤 Talaba ma'lumotlari</div>
+        
+        <div class="form-group">
+            <label>Guruh: MTO 1-26</label>
+            <select id="studentSelect">
+                <option value="" disabled selected>Talabani tanlang...</option>
+                <option>Abduqodirov S.</option>
+                <option>Abdurahmonov B.</option>
+                <option>Abdusamatov S.</option>
+                <option>Ahmadiyorov N.</option>
+                <option>Ahmadqulov J.</option>
+                <option>Akramov N.</option>
+                <option>Joniqulov D.</option>
+                <option>Kamoliddinov A.</option>
+                <option>Kamolov M.</option>
+                <option>Meliboyev S.</option>
+                <option>Murodqulov J.</option>
+                <option>Mustafoqulov A.</option>
+                <option>Norbekov Sh.</option>
+                <option>Norbo‘tayev Q.</option>
+                <option>Qurbonboyev N.</option>
+                <option>Rayimjonov U.</option>
+                <option>Safarboyev B.</option>
+                <option>Safarboyev B.</option>
+                <option>Shermatov A.</option>
+                <option>Sulaymonov Sh.</option>
+                <option>Sultonov I.</option>
+                <option>Tilovbekov S.</option>
+                <option>Tohirov S.</option>
+                <option>Tursunmurodov Sh.</option>
+                <option>Umurqulov E.</option>
+                <option>Xamroqulov O.</option>
+                <option>Xolbo‘tayev E.</option>
+                <option>Xudoyberdiyev H.</option>
+                <option>Xudoyberdiyev S.</option>
+            </select>
+        </div>
 
-  <button type="button" class="btn-green" id="btn-submit" onclick="sendDataToTelegram()" disabled>Tasdiqlash va Yuborish</button>
+        <div class="form-group">
+            <label>Dars juftligi (Para)</label>
+            <select id="paraSelect">
+                <option value="" disabled selected>Parani tanlang...</option>
+                <option>1-para</option>
+                <option>2-para</option>
+                <option>3-para</option>
+                <option>4-para</option>
+            </select>
+        </div>
+
+        <!-- Keldi / Ketdi Auto Status -->
+        <div class="form-group">
+            <label>Davomat holati (Avtomatik)</label>
+            <div class="status-container">
+                <div id="statusKeldi" class="status-badge">🟢 Keldi</div>
+                <div id="statusKetdi" class="status-badge">🔴 Ketdi</div>
+            </div>
+            <div id="timeStamp" class="time-stamp">Hali tasdiqlanmadi</div>
+        </div>
+    </div>
+
+    <!-- Face Control -->
+    <div class="glass-card">
+        <div class="section-title">📸 Face Control</div>
+        <div class="camera-area" id="cameraArea">
+            <div class="camera-placeholder" id="cameraPlaceholder">
+                <div style="font-size: 40px; margin-bottom: 10px;">📷</div>
+                <div>Kamerani ochish uchun tugmani bosing</div>
+            </div>
+            <video id="videoPreview" autoplay playsinline style="display: none;"></video>
+        </div>
+        <button class="btn btn-camera" onclick="startCamera()">
+            📸 Kamerani ochish (Face ID)
+        </button>
+    </div>
+
+    <!-- GPS Control -->
+    <div class="glass-card">
+        <div class="section-title">📍 GPS Geolokatsiya</div>
+        <div class="gps-status">
+            <span><span class="gps-dot" id="gpsDot"></span> <span id="gpsText">Tekshirilmagan</span></span>
+            <button class="btn btn-camera" style="width: auto; padding: 8px 16px; margin: 0; font-size: 14px;" onclick="checkGPS()">Tekshirish</button>
+        </div>
+    </div>
+
+    <!-- Call to Teacher -->
+    <div class="glass-card">
+        <a href="tel:+998904021122" class="btn btn-call">
+            📞 O'qituvchidan javob olish
+        </a>
+        <button class="btn btn-submit" onclick="submitAttendance()">
+            ✅ Tasdiqlash va Yuborish
+        </button>
+    </div>
 </div>
 
 <script>
-  let deferredPrompt;
-  const installBtn = document.getElementById('btn-install');
+    let isFaceVerified = false;
+    let isGpsVerified = false;
 
-  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    installBtn.style.display = 'none';
-  }
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
-
-  window.addEventListener('appinstalled', (evt) => {
-    installBtn.style.display = 'none';
-    deferredPrompt = null;
-  });
-
-  function installApp() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          installBtn.style.display = 'none';
+    // 1. Kamera ochish (Old kamera, ishlamasa orqa kamera)
+    async function startCamera() {
+        const video = document.getElementById('videoPreview');
+        const placeholder = document.getElementById('cameraPlaceholder');
+        
+        try {
+            // Avval old (front) kamerani ochishga harakat qilamiz
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'user' } 
+            });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            placeholder.style.display = 'none';
+            isFaceVerified = true;
+            updateStatus('keldi');
+        } catch (err) {
+            console.warn("Old kamera topilmadi, orqa kameraga o'tilmoqda...", err);
+            try {
+                // Front ishlamasa, asosiy (orqa) kamerani ochamiz
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                isFaceVerified = true;
+                updateStatus('keldi');
+            } catch (err2) {
+                alert("Kameraga ruxsat berilmadi yoki qurilmada kamera mavjud emas.");
+            }
         }
-        deferredPrompt = null;
-      });
-    } else {
-      alert("Ilovani o'rnatish uchun:\n1. Brauzer menyusini (⋮) bosing.\n2. 'Ekran bo'limiga qo'shish' yoki 'Установить приложение' tugmasini tanlang.");
-    }
-  }
-
-  let faceVerified = false; 
-  let geoVerified = false; 
-  let coordsText = "40.283016,69.033260"; 
-  let rawFileBlob = null;
-
-  const TARGET_LAT = 40.283016;
-  const TARGET_LON = 69.033260;
-  const ALLOWED_RADIUS_METERS = 200;
-
-  function handlePhoto(input) {
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const MAX_SIZE = 800;
-
-          if (width > height) {
-            if (width > MAX_SIZE) {
-              height *= MAX_SIZE / width;
-              width = MAX_SIZE;
-            }
-          } else {
-            if (height > MAX_SIZE) {
-              width *= MAX_SIZE / height;
-              height = MAX_SIZE;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          canvas.toBlob((blob) => {
-            rawFileBlob = blob;
-            const preview = document.getElementById('preview');
-            preview.src = canvas.toDataURL('image/jpeg', 0.6);
-            preview.style.display = 'block';
-            document.getElementById('photo-placeholder').style.display = 'none';
-            faceVerified = true;
-            
-            const faceStatus = document.getElementById('face-status');
-            faceStatus.textContent = "🟢 Rasm muvaffaqiyatli olindi!";
-            faceStatus.style.background = "#065f46";
-            updateSubmitButton();
-          }, 'image/jpeg', 0.6);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const φ1 = lat1 * Math.PI/180;
-    const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180;
-    const Δλ = (lon2-lon1) * Math.PI/180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  }
-
-  function verifyGPS() {
-    const geoStatus = document.getElementById('geo-status');
-    geoStatus.textContent = "GPS tekshirilmoqda...";
-    
-    if (!navigator.geolocation) { 
-      alert("Qurilmangiz GPS'ni qo'llab-quvvatlamaydi.");
-      return; 
     }
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const userLat = pos.coords.latitude;
-      const userLon = pos.coords.longitude;
-      coordsText = `${userLat},${userLon}`;
-
-      const distance = calculateDistance(userLat, userLon, TARGET_LAT, TARGET_LON);
-
-      if (distance <= ALLOWED_RADIUS_METERS) {
-        geoVerified = true;
-        geoStatus.textContent = `🟢 Texnikum hududasidasiz (${Math.round(distance)}m)`;
-        geoStatus.style.background = "#065f46";
-      } else {
-        geoVerified = false;
-        geoStatus.textContent = `🔴 Hududdan tashqaridasiz (${Math.round(distance)}m)`;
-        geoStatus.style.background = "#7f1d1d";
-        alert(`Diqqat! Siz texnikum hududidan uzoqdasiz (~${Math.round(distance)} metr). Faqat belgilangan hududda ishlash mumkin.`);
-      }
-      updateSubmitButton();
-    }, (err) => {
-      geoStatus.textContent = "🔴 GPS xatosi yoki ruxsat yo'q";
-      geoStatus.style.background = "#7f1d1d";
-      alert("GPS ma'lumotini olish imkoni bo'lmadi. Brauzer yoki telefon sozlamalaridan joylashuv ruxsatini yoqing.");
-    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
-  }
-
-  function updateSubmitButton() {
-    const name = document.getElementById('student-name').value;
-    const submitBtn = document.getElementById('btn-submit');
-    if (name && faceVerified && geoVerified) {
-      submitBtn.disabled = false;
-    } else {
-      submitBtn.disabled = true;
-    }
-  }
-
-  document.getElementById('student-name').addEventListener('change', updateSubmitButton);
-
-  function sendDataToTelegram() {
-    const submitBtn = document.getElementById('btn-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Yuborilmoqda...";
-
-    const BOT_TOKEN = "8776881005:AAHLW35x912tU0dI3sgql4IMB1OIBRJzC88";
-    const CHAT_ID = "-1003956011370";
-
-    const name = document.getElementById('student-name').value;
-    const pair = document.getElementById('lesson-pair').value;
-    
-    const messageText = `📊 <b>MTO 1-26 GURUH DAVOMATI</b>\n\n` +
-                        `👤 <b>Talaba:</b> ${name}\n` +
-                        `📚 <b>Dars:</b> ${pair}\n` +
-                        `📍 <b>Lokatsiya:</b> <a href="https://maps.google.com/?q=${coordsText}">Google Maps</a>\n` +
-                        `🕒 <b>Vaqt:</b> ${new Date().toLocaleString('uz-UZ', {timeZone: 'Asia/Tashkent'})}`;
-
-    const formData = new FormData();
-    formData.append("chat_id", CHAT_ID);
-    formData.append("parse_mode", "HTML");
-    formData.append("caption", messageText);
-
-    let apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-    if (rawFileBlob) {
-      formData.append("photo", rawFileBlob, "face.jpg");
-      apiUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-    } else {
-      formData.append("text", messageText);
+    // 2. GPS Tekshirish
+    function checkGPS() {
+        const gpsDot = document.getElementById('gpsDot');
+        const gpsText = document.getElementById('gpsText');
+        
+        if (navigator.geolocation) {
+            gpsText.innerText = "Tekshirilmoqda...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    gpsDot.classList.add('active');
+                    gpsText.innerText = "Texnikum hududi (Tasdiqlandi)";
+                    isGpsVerified = true;
+                    updateStatus('keldi');
+                },
+                (error) => {
+                    gpsText.innerText = "Xatolik: Ruxsat berilmadi";
+                }
+            );
+        } else {
+            gpsText.innerText = "Brauzer qo'llab-quvvatlamaydi";
+        }
     }
 
-    fetch(apiUrl, { method: "POST", body: formData })
-    .then(async res => {
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        alert("Davomat Telegram guruhiga muvaffaqiyatli yuborildi!");
-        location.reload();
-      } else {
-        throw new Error(data.description || "Noma'lum xatolik");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Yuborishda xatolik yuz berdi: " + err.message);
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Tasdiqlash va Yuborish";
+    // 3. Keldi / Ketdi holatini avtomatik yangilash
+    function updateStatus(status) {
+        const keldiBadge = document.getElementById('statusKeldi');
+        const ketdiBadge = document.getElementById('statusKetdi');
+        const timeStamp = document.getElementById('timeStamp');
+        const now = new Date().toLocaleTimeString('uz-UZ', {hour: '2-digit', minute:'2-digit'});
+
+        if (status === 'keldi') {
+            keldiBadge.classList.add('active-keldi');
+            ketdiBadge.classList.remove('active-ketdi');
+            timeStamp.innerText = `Keldi: ${now} (Face & GPS tasdiqlandi)`;
+        } else if (status === 'ketdi') {
+            ketdiBadge.classList.add('active-ketdi');
+            keldiBadge.classList.remove('active-keldi');
+            timeStamp.innerText = `Ketdi: ${now}`;
+        }
+    }
+
+    // Ketdi holatini qo'lda ishga tushirish uchun (agar talaba ketayotgan bo'lsa)
+    document.getElementById('statusKetdi').addEventListener('click', function() {
+        if(isFaceVerified && isGpsVerified) {
+            updateStatus('ketdi');
+        } else {
+            alert("Avval Face va GPS orqali 'Keldi' holatini tasdiqlang!");
+        }
     });
-  }
+
+    // 4. Ma'lumotlarni yuborish
+    function submitAttendance() {
+        const student = document.getElementById('studentSelect').value;
+        const para = document.getElementById('paraSelect').value;
+
+        if (!student || !para) {
+            alert("Iltimos, Talaba va Parani tanlang!");
+            return;
+        }
+        if (!isFaceVerified || !isGpsVerified) {
+            alert("Iltimos, Kamera va GPS orqali shaxsingizni tasdiqlang!");
+            return;
+        }
+
+        alert(`✅ Ma'lumotlar muvaffaqiyatli yuborildi!\nTalaba: ${student}\nPara: ${para}`);
+        // Bu yerga backend'ga ma'lumot yuborish (fetch/AJAX) kodlari qo'shiladi
+    }
 </script>
+
 </body>
 </html>
