@@ -130,7 +130,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 <script>
 /* Cloudflare Worker manzilini shu yerga yozing */
-const API = "https://e-mto.otdelkadrov-1khm.workers.dev";
+const API = "https://e-mto.odilbeksharipov95.workers.dev";
 const TARGET = {lat: 40.283016, lon: 69.033260}, RADIUS = 200, ACC_MAX = 60; // metr
 
 let deferredPrompt, faceOk = false, geoOk = false, coords = "", photoBlob = null, nextAct = null, stream = null, mirrored = false;
@@ -138,7 +138,7 @@ const $ = id => document.getElementById(id);
 
 /* ---- O'rnatish ---- */
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('btn-install').style.display = 'none';
+if (matchMedia('(display-mode: standalone)').matches || navigator.standalone || window.Capacitor || /; wv\)/.test(navigator.userAgent)) $('btn-install').style.display = 'none';
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
 addEventListener('appinstalled', () => { $('btn-install').style.display = 'none'; });
 function installApp() {
